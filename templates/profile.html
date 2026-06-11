@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-8">
+  <h1 class="text-3xl font-black">Profile 👤</h1>
+
+  <div class="grid grid-cols-3 gap-3">
+    {% for val, label, icon, color in [(stats['pts'] or 0,'Points','⭐','text-yellow-400'),(stats['exact'] or 0,'Perfect scores','🎯','text-green-400'),(stats['cnt'] or 0,'Predictions','📊','text-blue-400')] %}
+    <div class="card p-4 text-center">
+      <div class="text-2xl mb-1">{{ icon }}</div>
+      <div class="text-2xl font-black {{ color }}">{{ val }}</div>
+      <div class="text-xs text-slate-500 mt-0.5">{{ label }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <form method="POST" class="space-y-8">
+    <div class="card p-6">
+      <h2 class="font-bold text-lg mb-4">Display name</h2>
+      <input name="name" value="{{ user['name'] }}" class="input" maxlength="30" required/>
+    </div>
+
+    <div class="card p-6">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="font-bold text-lg">Favorite teams</h2>
+        <span class="text-sm text-slate-400" id="team-count">{{ fav_teams|length }}/4</span>
+      </div>
+      <p class="text-slate-400 text-sm mb-5">Pick up to 4 teams you're rooting for</p>
+      {% set groups_order = ['A','B','C','D','E','F','G'] %}
+      {% for g in groups_order %}
+      {% set g_teams = TEAMS.items()|selectattr('1.group','equalto',g)|list %}
+      {% if g_teams %}
+      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Group {{ g }}</h3>
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        {% for code, t in g_teams %}
+        {% set selected = code in fav_teams %}
+        <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition
+          {{ 'bg-green-900/50 border-green-500/60 text-green-300' if selected else 'border-slate-700 hover:border-slate-500 hover:bg-slate-700/30' }}">
+          <input type="checkbox" name="teams" value="{{ code }}" {% if selected %}checked{% endif %} class="hidden" onchange="updateCount()"/>
+          <span class="text-2xl">{{ t['flag'] }}</span>
+          <span class="text-sm font-medium truncate flex-1">{{ t['name'] }}</span>
+          {% if selected %}<span class="text-green-400">✓</span>{% endif %}
+        </label>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endfor %}
+      <script>
+        function updateCount() {
+          const checked = document.querySelectorAll('input[name="teams"]:checked');
+          document.getElementById('team-count').textContent = checked.length + '/4';
+          if (checked.length >= 4) {
+            document.querySelectorAll('input[name="teams"]:not(:checked)').forEach(cb => cb.closest('label').style.opacity='0.4');
+          } else {
+            document.querySelectorAll('input[name="teams"]').forEach(cb => cb.closest('label').style.opacity='1');
+          }
+        }
+        updateCount();
+      </script>
+    </div>
+
+    <div class="card p-6">
+      <h2 class="font-bold text-lg mb-1">🥇 Golden Boot pick</h2>
+      <p class="text-slate-400 text-sm mb-4">Who scores the most goals?</p>
+      <input name="golden_boot" value="{{ user['golden_boot'] or '' }}" placeholder="e.g. Mbappé, Vinicius Jr., Messi…" class="input" maxlength="50"/>
+    </div>
+
+    <button type="submit" class="btn-primary w-full text-center">Save profile</button>
+  </form>
+</div>
+{% endblock %}

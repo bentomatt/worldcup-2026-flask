@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+  <div>
+    <h1 class="text-3xl font-black">Bracket 🏆</h1>
+    <p class="text-slate-400 text-sm mt-1">Knockout stage picks — unlocks when Round of 32 begins</p>
+  </div>
+
+  {% if no_groups %}
+  <div class="card p-8 text-center space-y-4">
+    <div class="text-6xl">🏆</div>
+    <p class="text-slate-400">Join or create a group first to fill out your bracket.</p>
+    <a href="/groups" class="btn-primary inline-block">Go to groups →</a>
+  </div>
+  {% else %}
+
+  {% set rounds = [('r32','Round of 32',16),('r16','Round of 16',8),('qf','Quarter-finals',4),('sf','Semi-finals',2),('final','Final',1),('champion','🏆 Champion',1)] %}
+
+  <div class="flex gap-2 overflow-x-auto pb-1" id="round-tabs">
+    {% for key, label, slots in rounds %}
+    <button onclick="showRound('{{ key }}')" id="tab-{{ key }}"
+      class="whitespace-nowrap px-4 py-2 rounded-xl text-sm font-semibold transition flex-shrink-0 {{ 'bg-green-700 text-white' if loop.first else 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200' }}">
+      {{ label }}
+    </button>
+    {% endfor %}
+  </div>
+
+  {% for key, label, slots in rounds %}
+  <div id="round-{{ key }}" class="{{ 'hidden' if not loop.first else '' }}">
+    <form method="POST" action="/bracket/save">
+      <input type="hidden" name="group_id" value="{{ grp['id'] }}"/>
+      <input type="hidden" name="round" value="{{ key }}"/>
+      <input type="hidden" name="slots" value="{{ slots }}"/>
+      <div class="grid gap-3 sm:grid-cols-2 mb-4">
+        {% for i in range(1, slots+1) %}
+        {% set pick = my_picks.get(key~'_'~i) %}
+        <div class="card p-4">
+          <p class="text-xs text-slate-500 mb-2">{{ 'Champion' if key=='champion' else 'Winner' if key=='final' else 'Match '~i }}</p>
+          <select name="slot_{{ i }}" class="input text-sm">
+            <option value="">-- Pick a team --</option>
+            {% for code, t in TEAMS.items() %}
+            <option value="{{ code }}" {{ 'selected' if pick and pick['team_code']==code else '' }}>{{ t['flag'] }} {{ t['name'] }}</option>
+            {% endfor %}
+          </select>
+          {% if pick and pick['team_code'] %}
+          <div class="flex items-center gap-2 mt-2">
+            <span class="text-2xl">{{ TEAMS.get(pick['team_code'],{}).get('flag','') }}</span>
+            <span class="text-sm font-semibold">{{ TEAMS.get(pick['team_code'],{}).get('name','') }}</span>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn-primary w-full text-center">Save {{ label }} picks</button>
+    </form>
+  </div>
+  {% endfor %}
+
+  <script>
+    function showRound(key) {
+      {% for k, l, s in rounds %}document.getElementById('round-{{ k }}').classList.add('hidden');document.getElementById('tab-{{ k }}').classList.remove('bg-green-700','text-white');document.getElementById('tab-{{ k }}').classList.add('bg-slate-700/50','text-slate-400');{% endfor %}
+      document.getElementById('round-'+key).classList.remove('hidden');
+      document.getElementById('tab-'+key).classList.add('bg-green-700','text-white');
+      document.getElementById('tab-'+key).classList.remove('bg-slate-700/50','text-slate-400');
+    }
+  </script>
+  {% endif %}
+</div>
+{% endblock %}

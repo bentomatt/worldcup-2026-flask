@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <title>WC 2026 🏆</title>
+  <link rel="manifest" href="/static/manifest.json"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pitch: { 400:'#4ade80', 500:'#22c55e', 600:'#16a34a', 700:'#15803d', 900:'#14532d' },
+            gold:  { 400:'#fbbf24', 500:'#f59e0b' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #0f172a; color: #f8fafc; font-family: system-ui, sans-serif; }
+    .card { background: rgba(30,41,59,0.7); border: 1px solid rgba(71,85,105,0.5); border-radius: 1rem; }
+    .btn-primary { background:#15803d; color:#fff; font-weight:700; padding:.75rem 1.5rem; border-radius:.75rem; transition:all .2s; display:inline-block; }
+    .btn-primary:hover { background:#16a34a; }
+    .btn-secondary { background:#334155; color:#f1f5f9; font-weight:600; padding:.75rem 1.5rem; border-radius:.75rem; transition:all .2s; display:inline-block; }
+    .btn-gold { background:#f59e0b; color:#0f172a; font-weight:800; padding:.75rem 1.5rem; border-radius:.75rem; transition:all .2s; display:inline-block; }
+    .input { background:rgba(51,65,85,.5); border:1px solid #475569; border-radius:.75rem; padding:.75rem 1rem; color:#f8fafc; width:100%; outline:none; transition:.2s; }
+    .input:focus { border-color:#22c55e; box-shadow:0 0 0 2px rgba(34,197,94,.25); }
+    .badge { display:inline-flex; align-items:center; padding:.25rem .75rem; border-radius:9999px; font-size:.75rem; font-weight:600; }
+    .live-dot { width:.5rem; height:.5rem; border-radius:9999px; background:#ef4444; animation:livepulse 1.5s infinite; display:inline-block; }
+    @keyframes livepulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; }
+    input[type=number] { -moz-appearance:textfield; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Top nav -->
+<header class="fixed top-0 left-0 right-0 z-50 border-b border-slate-700/50 bg-slate-900/90 backdrop-blur-xl">
+  <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+    <a href="/dashboard" class="font-black text-lg flex items-center gap-2">🏆 WC <span class="text-green-400">2026</span></a>
+    <nav class="hidden md:flex gap-1 text-sm">
+      {% for href, label, icon in [('/dashboard','Home','🏠'),('/matches','Matches','⚽'),('/groups','Groups','👥'),('/bracket','Bracket','🏆'),('/profile','Profile','👤')] %}
+      <a href="{{ href }}" class="px-3 py-1.5 rounded-lg {% if request.path.startswith(href) %}bg-green-900/50 text-green-300{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-700/50{% endif %}">{{ icon }} {{ label }}</a>
+      {% endfor %}
+    </nav>
+    <a href="/logout" class="text-slate-500 hover:text-slate-300 text-sm">Sign out</a>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 pt-20 pb-24 md:pb-8">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Mobile bottom nav -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-slate-700/50 bg-slate-900/95 backdrop-blur-xl grid grid-cols-5">
+  {% for href, label, icon in [('/dashboard','Home','🏠'),('/matches','Matches','⚽'),('/groups','Groups','👥'),('/bracket','Bracket','🏆'),('/profile','Profile','👤')] %}
+  <a href="{{ href }}" class="flex flex-col items-center py-3 gap-0.5 text-xs {% if request.path.startswith(href) %}text-green-400{% else %}text-slate-500{% endif %}">
+    <span class="text-xl">{{ icon }}</span><span>{{ label }}</span>
+  </a>
+  {% endfor %}
+</nav>
+</body>
+</html>

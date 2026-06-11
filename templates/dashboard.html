@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-8">
+  <div>
+    <h1 class="text-3xl font-black">Hey, {{ user['name'] }}! 👋</h1>
+    <p class="text-slate-400 mt-1">World Cup 2026 is ON</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-3 gap-3">
+    {% set pred_count = preds|length %}
+    {% set correct = preds.values()|selectattr('points_earned','gt',0)|list|length %}
+    {% for val, label, icon, color in [(total_pts,'Points','⭐','text-yellow-400'),(pred_count,'Predictions','🎯','text-green-400'),(correct,'Correct','✅','text-blue-400')] %}
+    <div class="card p-4 text-center">
+      <div class="text-2xl mb-1">{{ icon }}</div>
+      <div class="text-2xl font-black {{ color }}">{{ val }}</div>
+      <div class="text-xs text-slate-500 mt-0.5">{{ label }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Fav teams -->
+  {% if fav_teams %}
+  <div>
+    <h2 class="text-lg font-bold mb-3">Your teams</h2>
+    <div class="flex gap-3 flex-wrap">
+      {% for code in fav_teams %}
+      {% set t = TEAMS.get(code, {}) %}
+      <div class="card px-4 py-2 flex items-center gap-2">
+        <span class="text-2xl">{{ t.get('flag','🏳️') }}</span>
+        <span class="font-semibold text-sm">{{ t.get('name', code) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <a href="/profile" class="card p-4 flex items-center justify-between hover:border-green-600/50 transition block">
+    <div><p class="font-semibold">Pick your favorite teams</p><p class="text-sm text-slate-400">Choose up to 4 teams</p></div>
+    <span class="text-green-400">→</span>
+  </a>
+  {% endif %}
+
+  <!-- Upcoming matches -->
+  <div>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold">Upcoming matches</h2>
+      <a href="/matches" class="text-green-400 text-sm hover:text-green-300">See all →</a>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-3">
+      {% for m in matches %}
+      {% set ht = TEAMS.get(m['home_team'],{}) %}
+      {% set at = TEAMS.get(m['away_team'],{}) %}
+      {% set pred = preds.get(m['id']) %}
+      <a href="/matches/{{ m['id'] }}" class="card p-4 block hover:border-slate-600 transition">
+        <div class="flex items-center justify-between mb-3">
+          <span class="badge" style="background:rgba(30,64,175,.3);color:#93c5fd;border:1px solid rgba(30,64,175,.4)">
+            {% if m['stage']=='group' %}Group {{ m['group_name'] }}{% else %}{{ m['stage']|upper }}{% endif %}
+          </span>
+          {% if m['status']=='live' %}<span class="flex items-center gap-1 text-red-400 text-xs font-bold"><span class="live-dot"></span>LIVE</span>
+          {% elif m['status']=='finished' %}<span class="text-xs text-slate-500">FT</span>
+          {% else %}<span class="text-green-400 text-sm font-semibold font-mono">{{ m['kickoff'][11:16] }}</span>{% endif %}
+        </div>
+        <div class="flex items-center justify-center gap-4">
+          <div class="flex flex-col items-center gap-1 w-16 text-center">
+            <span class="text-3xl">{{ ht.get('flag','🏳️') }}</span>
+            <span class="text-xs text-slate-300">{{ ht.get('name', m['home_team']) }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg bg-slate-700/80 flex items-center justify-center font-black">{{ m['home_score'] if m['home_score'] is not none else '-' }}</div>
+            <span class="text-slate-600 font-bold">—</span>
+            <div class="w-9 h-9 rounded-lg bg-slate-700/80 flex items-center justify-center font-black">{{ m['away_score'] if m['away_score'] is not none else '-' }}</div>
+          </div>
+          <div class="flex flex-col items-center gap-1 w-16 text-center">
+            <span class="text-3xl">{{ at.get('flag','🏳️') }}</span>
+            <span class="text-xs text-slate-300">{{ at.get('name', m['away_team']) }}</span>
+          </div>
+        </div>
+        {% if pred %}
+        <div class="mt-3 pt-3 border-t border-slate-700/50 flex justify-between text-xs">
+          <span class="text-slate-500">Your pick: {{ pred['predicted_home'] }}–{{ pred['predicted_away'] }}</span>
+          {% if pred['points_earned'] is not none %}
+          <span class="{% if pred['points_earned']==3 %}text-yellow-400{% elif pred['points_earned']==1 %}text-green-400{% else %}text-red-400{% endif %} font-bold">
+            {{ '+%d'|format(pred['points_earned']) if pred['points_earned'] > 0 else '0' }}pts
+          </span>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="mt-3 pt-3 border-t border-slate-700/50 text-center text-xs text-green-400">Tap to predict →</div>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Groups -->
+  <div>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold">Your groups</h2>
+      <a href="/groups" class="text-green-400 text-sm">Manage →</a>
+    </div>
+    {% if groups %}
+    <div class="grid sm:grid-cols-2 gap-3">
+      {% for g in groups %}
+      <a href="/groups/{{ g['id'] }}" class="card p-4 block hover:border-green-600/50 transition">
+        <p class="font-bold">{{ g['name'] }}</p>
+        <p class="text-xs text-slate-500 mt-1">Code: <span class="font-mono text-green-400 font-bold">{{ g['invite_code'] }}</span></p>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <a href="/groups" class="card p-6 flex justify-between items-center hover:border-green-600/50 transition block">
+      <div><p class="font-semibold">No groups yet</p><p class="text-sm text-slate-400">Create one and invite friends</p></div>
+      <span class="text-green-400 text-2xl">+</span>
+    </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

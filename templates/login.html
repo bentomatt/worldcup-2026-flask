@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <title>WC 2026 — Sign In</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body{background:#0f172a;color:#f8fafc;font-family:system-ui,sans-serif;}.input{background:rgba(51,65,85,.5);border:1px solid #475569;border-radius:.75rem;padding:.75rem 1rem;color:#f8fafc;width:100%;outline:none;transition:.2s;}.input:focus{border-color:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.25);}</style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-10">
+      <div class="text-7xl mb-4">🏆</div>
+      <h1 class="text-4xl font-black">World Cup <span class="text-green-400">2026</span></h1>
+      <p class="text-slate-400 mt-2">Bracket & predictions with your crew</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-8">
+      {% for icon, text in [('📅','Live schedule'),('🎯','Score predictions'),('🏅','Leaderboard'),('🎲','Friend bets')] %}
+      <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-3 flex items-center gap-2 text-sm text-slate-300">
+        <span class="text-xl">{{ icon }}</span> {{ text }}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8">
+      <h2 class="text-xl font-bold mb-1">Sign in</h2>
+      <p class="text-slate-400 text-sm mb-6">Enter your name and email to get started. No password needed.</p>
+      {% if error %}<p class="text-red-400 text-sm mb-4">{{ error }}</p>{% endif %}
+      <form method="POST" class="space-y-4">
+        <input name="name" type="text" placeholder="Your name" required class="input"/>
+        <input name="email" type="email" placeholder="your@email.com" required class="input"/>
+        <button type="submit" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition">
+          Let's go ⚽
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

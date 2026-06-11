@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-8">
+  <h1 class="text-3xl font-black">Groups 👥</h1>
+
+  {% if groups %}
+  <div>
+    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Your groups</h2>
+    <div class="space-y-3">
+      {% for g in groups %}
+      <a href="/groups/{{ g['id'] }}" class="card p-4 flex justify-between items-center hover:border-green-600/50 transition block">
+        <div>
+          <p class="font-bold text-lg">{{ g['name'] }}</p>
+          <p class="text-sm text-slate-400 mt-0.5">Code: <span class="font-mono text-green-400 font-black tracking-widest">{{ g['invite_code'] }}</span></p>
+        </div>
+        <span class="text-slate-500">→</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if error %}<p class="text-red-400 text-sm">{{ error }}</p>{% endif %}
+
+  <div class="card p-6">
+    <h2 class="font-bold text-lg mb-1">Create a group</h2>
+    <p class="text-slate-400 text-sm mb-5">Give it a name and share the invite code.</p>
+    <form method="POST" class="space-y-3">
+      <input type="hidden" name="action" value="create"/>
+      <input name="name" placeholder="e.g. The Lads, Office Cup…" maxlength="50" required class="input"/>
+      <button type="submit" class="btn-primary w-full text-center">Create group 🚀</button>
+    </form>
+  </div>
+
+  <div class="card p-6">
+    <h2 class="font-bold text-lg mb-1">Join a group</h2>
+    <p class="text-slate-400 text-sm mb-5">Got a code from a friend?</p>
+    <form method="POST" class="space-y-3">
+      <input type="hidden" name="action" value="join"/>
+      <input name="code" placeholder="6-digit code e.g. AB12CD" maxlength="6" required class="input" style="font-family:monospace;letter-spacing:.2em;text-transform:uppercase;font-size:1.1rem;"/>
+      <button type="submit" class="btn-secondary w-full text-center">Join group 👥</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
